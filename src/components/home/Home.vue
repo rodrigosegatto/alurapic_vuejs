@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1 class="centralizado">{{ titulo }}</h1>
+    <p class="centralizado">{{ mensagem }}</p>
     <input type="search" class="filtro" placeholder="filtre pelo título da foto" v-on:input="filtro = $event.target.value">
     <ul class="lista-fotos">
       <li class="lista-fotos-item" v-for="foto of fotosComFiltro" :key="foto.url">
@@ -23,6 +24,7 @@ import Painel from '../shared/painel/Painel.vue';
 import Botao from '../shared/botao/Botao.vue';
 import ImagemResponsiva from '../shared/imagem-responsiva/imagemResponsiva.vue';
 import transform from '../../directives/Transform';
+import FotoService from '../../domain/foto/FotoService';
 
 export default {
   components:{
@@ -37,7 +39,8 @@ export default {
     return {
       titulo: 'AluraPic',
       fotos: [],
-      filtro: ''
+      filtro: '',
+      mensagem: ''
     }
   },
   computed: {
@@ -52,13 +55,45 @@ export default {
   },
   methods:{
     remove(foto) {
-      alert('remover'+foto.titulo);
+      this.service
+        .apaga(foto._id)
+        .then(
+          () => {
+            let indice = this.fotos.indexOf(foto);
+            this.fotos.splice(indice, 1);
+            this.mensagem = 'Foto removida com sucesso'
+          },
+          err => {
+            this.mensagem = 'Não foi possível remover a foto';
+            console.log(err);
+          }
+        );
+
+      /* //Anterior
+      this.$http
+        .delete('v1/fotos/'+foto._id)
+        .then(() =>
+        {
+          let indice = this.fotos.indexOf(foto);
+          this.fotos.splice(indice,1);
+          this.mensagem = 'Foto removida com sucesso'
+        }, err => {
+          console.log(err);
+          this.mensagem = 'Não foi possível remover a foto';
+        });*/
     }
   },
   created() {
-    this.$http.get('http://localhost:3000/v1/fotos')
-      .then(res => res.json())
+
+    this.service = new FotoService(this.$resource);
+    this.service
+      .lista()
       .then(fotos => this.fotos = fotos, err => console.log(err));
+
+    //Forma anterior
+    /*this.$http.get('v1/fotos')
+      .then(res => res.json())
+      .then(fotos => this.fotos = fotos, err => console.log(err));*/
   }
 }
 </script>
