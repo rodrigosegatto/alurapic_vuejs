@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="centralizado">{{ titulo }}</h1>
+    <h1 class="centralizado">{{ titulo }} <img src="../../../static/teste.jpg" width="60px" /></h1>
     <p class="centralizado">{{ mensagem }}</p>
     <input type="search" class="filtro" placeholder="filtre pelo título da foto" v-on:input="filtro = $event.target.value">
     <ul class="lista-fotos">
